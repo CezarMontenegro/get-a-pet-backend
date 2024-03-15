@@ -1,6 +1,8 @@
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 
+const createUserToken = require('../helpers/create-user-token');
+
 const register = async (req, res) => {
   const { name, email, phone, password, confirmPassword } = req.body;
 
@@ -52,10 +54,9 @@ const register = async (req, res) => {
 
   try {
     await user.save();
-    return res.status(201).json({
-      message: 'Usuário foi criado',
-      user,
-    })
+    
+    await createUserToken(user, req, res);
+
   } catch (error) {
     return res.status(500).json({ message: error })
   }
