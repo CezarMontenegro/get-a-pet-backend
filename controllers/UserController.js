@@ -35,7 +35,7 @@ const register = async (req, res) => {
   const userExists = await User.findOne({ email: email })
   if (userExists) {
     res.status(422).json({
-      message: 'Por favor, utilize outro e-mail'
+      message: 'O usuário já exites, por favor, utilize outro e-mail'
     })
     return
   }
@@ -44,7 +44,7 @@ const register = async (req, res) => {
   const salt = await bcrypt.genSalt(12);
   const passwordHash = await bcrypt.hash(password, salt);
 
-  // create user
+  // creating user
   const user = new User ({
     name,
     email,
@@ -54,12 +54,59 @@ const register = async (req, res) => {
 
   try {
     await user.save();
-    
     await createUserToken(user, req, res);
-
   } catch (error) {
     return res.status(500).json({ message: error })
   }
 }
 
-module.exports = {register}
+const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  if(!email) {
+    res.status(422).json({ message: 'O e-mail é obrigatório' })
+  }
+  if (!password) {
+    res.status(422).json({ message: 'A senha é obrigatório'})
+    return
+  }
+
+  const user = await User.findOne({ email: email })
+  if (!user) {
+    res.status(422).json({
+      message: 'Não há usuario cadastrado com esse email!'
+    })
+    return
+  }
+  // check if password match with db password
+  const checkPassword = await bcrypt.compare(password, user.password)
+
+  if(!checkPassword) {
+    res.status(422).json({
+      message: 'Senha inválida',
+    })
+    return
+  }
+
+  await createUserToken(user, req, res)
+}
+
+const checkUser = async (req, res) => {
+  let currentUser;
+
+  if(req.headers.authorization) {
+    
+
+  } else {
+
+  }
+}
+
+
+
+
+
+module.exports = {
+  register,
+  login
+}
