@@ -1,7 +1,10 @@
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken')
 
+//Helpers
 const createUserToken = require('../helpers/create-user-token');
+const getToken = require('../helpers/get-token');
 
 const register = async (req, res) => {
   const { name, email, phone, password, confirmPassword } = req.body;
@@ -15,7 +18,7 @@ const register = async (req, res) => {
     res.status(422).json({ message: 'O email é obrigatório'})
     return
   }
-  if (!phone) {
+  if (!phone) {ra
     res.status(422).json({ message: 'O telefone é obrigatório'})
     return
   }
@@ -32,7 +35,9 @@ const register = async (req, res) => {
     return
   }
 
+  //validate if user exists
   const userExists = await User.findOne({ email: email })
+
   if (userExists) {
     res.status(422).json({
       message: 'O usuário já exites, por favor, utilize outro e-mail'
@@ -63,6 +68,7 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   const { email, password } = req.body;
 
+  //Validations
   if(!email) {
     res.status(422).json({ message: 'O e-mail é obrigatório' })
   }
@@ -71,6 +77,7 @@ const login = async (req, res) => {
     return
   }
 
+  //Check if user exists  
   const user = await User.findOne({ email: email })
   if (!user) {
     res.status(422).json({
@@ -94,19 +101,38 @@ const login = async (req, res) => {
 const checkUser = async (req, res) => {
   let currentUser;
 
+  //Verify if the token was passed and it`s valid
   if(req.headers.authorization) {
-    
+    const token = getToken(req)
+    const decoded = jwt.verify(token, 'secret')
 
+    currentUser = await User.findById(decoded.id, '-password');
   } else {
-
+    currentUser = null
   }
+
+  res.status(200).send(currentUser)
 }
 
+const getUserById = async (req, res) => {
+  const id = req.params.id
 
+  const user = await User.findById(id);
+  console.log(user)
+
+  if (!user) {
+    res.status(422).JSON({ msg: 'Usuário não encontrado' });
+    return
+  }
+
+  res.status(200).json({ user });
+}
 
 
 
 module.exports = {
   register,
-  login
+  login,
+  checkUser,
+  getUserById,
 }
