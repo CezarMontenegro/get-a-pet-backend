@@ -111,21 +111,24 @@ const checkUser = async (req, res) => {
     currentUser = null
   }
 
-  res.status(200).send(currentUser)
+  res.status(200).send(currentUser)   
 }
 
 const getUserById = async (req, res) => {
   const id = req.params.id
 
-  const user = await User.findById(id);
-  console.log(user)
+  const user = await User.findById(id).select('-password');
 
   if (!user) {
-    res.status(422).JSON({ msg: 'Usuário não encontrado' });
+    res.status(422).json({ msg: 'Usuário não encontrado' });
     return
   }
 
   res.status(200).json({ user });
+}
+
+const editUser = async (req, res) => {
+
 }
 
 
@@ -135,4 +138,5 @@ module.exports = {
   login,
   checkUser,
   getUserById,
+  editUser,
 }
