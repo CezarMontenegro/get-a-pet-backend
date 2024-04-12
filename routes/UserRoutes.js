@@ -3,7 +3,7 @@ const router = require('express').Router();
 const UserController = require('../controllers/UserController');
 
 //Middlewares
-const verifyToken = require('../helpers/verify-token');
+const verifyToken = require('../middleware/verify-token');
 
 //Routes
 router.post('/register', UserController.register);

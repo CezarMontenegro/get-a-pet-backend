@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const getToken = require('./get-token');
+const getToken = require('../helpers/get-token');
 
 //middleware to validate token
 const checkToken = (req, res, next) => {
@@ -22,9 +22,6 @@ const checkToken = (req, res, next) => {
   } catch (error) {
     return res.status(400).json({ msg: 'Token inválido' });
   }
-
-  
-
 }
 
 module.exports = checkToken
